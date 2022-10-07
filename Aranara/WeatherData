@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Michigan_Weather>
+    <location> Detroit </location>
+    <cloud_coverage> 80% </cloud_coverage>
+    <rain_chance> 13% </rain_chance>
+</Michigan_Weather>
