@@ -6,36 +6,94 @@
 //
 
 import SwiftUI
-
+import UIKit
 struct ContentView: View {
-    @State private var location: CGPoint = CGPoint(x: 425, y:225)
+    // declare some variables
+    @State private var location: CGPoint = CGPoint(x: 205, y:275)
     @State var fingerLocation: CGPoint?
     @State var moveY = false
-    @State var opacity = 0.0
+    @State var msgOpacity = false
     @State var moveLeft = false
     @State var showMsg = false
-    //@State var getSizeX: Int?
-    //@State var getSizeY: Int?
+    @State var Msg = "Hello!"
     var body: some View {
         ZStack{
             Background
                 .blur(radius: 3)
             Ararycan
                 .position(location)
-                //.offset(dragOffset)
-            //drag feature to move aranara
-                .gesture(
+                //drag feature to move aranara
+                /*.gesture(
                     drag.simultaneously(with: fingerDrag)
+                )*/
+                .overlay(Message
+                    .position(location)
                 )
-                .gesture(
-                    TapGesture(count: 1)
-                        .onEnded{ showMsg = true }
-                )
-                
-            Greeting
-
                 
         }
+    }
+    
+    
+    var Message : some View{
+        VStack{
+            Button{
+                showMsg.toggle()
+            }
+        label:{
+            Text("")
+                .frame(width: 20, height: 80)
+            
+        }
+            if showMsg {
+                Text(Msg)
+                    .opacity(1.0)
+                    .onAppear(){
+                        withAnimation(.easeIn(duration: 1).repeatCount(1)){
+                            //msgOpacity.toggle()
+                            showMsg.toggle()
+                        }
+                    }
+                    .offset(x: 165, y: -70)
+                    .font(.title)
+                    .foregroundColor(.white)
+            }
+        }
+    }
+    
+    
+    // this is the image with some animations
+    var Ararycan : some View{
+        Image("aranara_rightArm")
+            .resizable()
+            .frame(width: 225, height: 225)
+            .offset(x: 3 ,y: moveY ? -20 : 0)
+            .rotationEffect(Angle(degrees: moveLeft ? -4 : 0))
+            .overlay(Image("aranara_body")
+                .resizable()
+                .padding()
+                .frame(width: 250, height: 250)
+                .overlay(
+                    Image("aranara_hat")
+                        .resizable()
+                        .frame(width: 250, height: 200)
+                        .offset(x: -2, y: -105)
+                        .rotationEffect(Angle(degrees: moveLeft ? 4 : 0))
+                )
+                .overlay(
+                    Image("aranara_leftArm")
+                        .resizable()
+                        .frame(width: 225, height: 225)
+                        .offset(x: -7.5, y: 1)
+                        .rotationEffect(Angle(degrees: moveLeft ? 2 : 0))
+                )
+                .offset(y: moveY ? -20 : 0)
+                .onAppear(){
+                    withAnimation(.easeInOut(duration: 2).repeatForever()){
+                        moveY.toggle()
+                        moveLeft.toggle()
+                    }
+                }
+        )
     }
     
     var drag: some Gesture{ //initial drag
@@ -53,61 +111,8 @@ struct ContentView: View {
                 self.fingerLocation = nil
             }
     }
-    
-    
-    var Message : some View{
-        Text("Hello!")
-            .foregroundColor(.white)
-            .font(.largeTitle)
-
-    }
-    
-    var Ararycan : some View{
-        Image("aranara_body")
-            .resizable()
-            .padding()
-            .frame(width: 225, height: 225)
-            .overlay(
-                Image("aranara_hat")
-                    .resizable()
-                    .frame(width: 250, height: 200)
-                    .offset(x: 5, y: -105)
-                    .rotationEffect(Angle(degrees: moveLeft ? 4 : 0))
-            )
-            .overlay(
-                Image("aranara_leftArm")
-                    .resizable()
-                    .frame(width: 225, height: 225)
-                    .offset(x: -3, y: 0)
-                    .rotationEffect(Angle(degrees: moveLeft ? 3 : 0))
-            )
-            .overlay(
-                Image("aranara_rightArm")
-                    .resizable()
-                    .frame(width: 225, height: 225)
-                    .offset(x: 4, y: 0)
-                    .rotationEffect(Angle(degrees: moveLeft ? -4 : 0))
-            )
-            .offset(y: moveY ? -20 : 0)
-            .onAppear(){
-                withAnimation(.easeInOut(duration: 2).repeatForever()){
-                    moveY.toggle()
-                    moveLeft.toggle()
-                }
-            }
-    }
-    
-    var Greeting : some View{
-        Rectangle()
-            .opacity(0)
-            .frame(width: 150 , height: 150)
-            .offset(x:-250 ,y: moveY ? -20 : 0)
-            .onTapGesture(){
-            print("Hi")
-    
-            }
-    }
 }
+
 
 
 var Background : some View{
@@ -116,6 +121,7 @@ var Background : some View{
         .frame(width: 1800/2, height: 900/2)
         
 }
+
 
 
 struct ContentView_Previews: PreviewProvider {
