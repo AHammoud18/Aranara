@@ -20,6 +20,7 @@ struct ContentView: View {
         ZStack{
             Background
                 .blur(radius: 3)
+            weatherData
             Ararycan
                 .position(location)
                 //drag feature to move aranara
@@ -111,8 +112,34 @@ struct ContentView: View {
                 self.fingerLocation = nil
             }
     }
+    
+    var weatherData: some View{
+        ZStack{
+            VStack{
+                let item = Fetch()
+                Rectangle()
+                    .frame(width: 200 , height: 250)
+                    .offset(x: 80)
+                    .overlay(
+                        ZStack{
+                            VStack{
+                                Text("Location:\(item.location ?? "nil")")
+                                    .foregroundColor(.white)
+                                    .offset(x: 80, y: -80)
+                                Text("Cloud Coverage:\(item.cloudCover ?? "nil")")
+                                    .foregroundColor(.white)
+                                    .offset(x: 80, y: 0)
+                                Text("Chance of Rain\(item.rainChance ?? "nil")")
+                                    .foregroundColor(.white)
+                                    .offset(x: 80, y: 0)
+                                
+                            }
+                        }
+                    )
+                }
+        }
+    }
 }
-
 
 
 var Background : some View{
@@ -121,7 +148,6 @@ var Background : some View{
         .frame(width: 1800/2, height: 900/2)
         
 }
-
 
 
 struct ContentView_Previews: PreviewProvider {
