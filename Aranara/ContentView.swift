@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 struct ContentView: View {
     // declare some variables
+    @StateObject var xmlData = Data()
     @State private var location: CGPoint = CGPoint(x: 205, y:275)
     @State var fingerLocation: CGPoint?
     @State var moveY = false
@@ -16,11 +17,11 @@ struct ContentView: View {
     @State var moveLeft = false
     @State var showMsg = false
     @State var Msg = "Hello!"
+    @State var area: String?
     var body: some View {
         ZStack{
             Background
                 .blur(radius: 3)
-            weatherData
             Ararycan
                 .position(location)
                 //drag feature to move aranara
@@ -29,7 +30,9 @@ struct ContentView: View {
                 )*/
                 .overlay(Message
                     .position(location)
+                    
                 )
+                .overlay(weatherData)
                 
         }
     }
@@ -39,6 +42,7 @@ struct ContentView: View {
         VStack{
             Button{
                 showMsg.toggle()
+                xmlData.getData()
             }
         label:{
             Text("")
@@ -116,26 +120,10 @@ struct ContentView: View {
     var weatherData: some View{
         ZStack{
             VStack{
-                let item = Fetch()
-                Rectangle()
-                    .frame(width: 200 , height: 250)
-                    .offset(x: 80)
-                    .overlay(
-                        ZStack{
-                            VStack{
-                                Text("Location:\(item.location ?? "nil")")
-                                    .foregroundColor(.white)
-                                    .offset(x: 80, y: -80)
-                                Text("Cloud Coverage:\(item.cloudCover ?? "nil")")
-                                    .foregroundColor(.white)
-                                    .offset(x: 80, y: 0)
-                                Text("Chance of Rain\(item.rainChance ?? "nil")")
-                                    .foregroundColor(.white)
-                                    .offset(x: 80, y: 0)
-                                
-                            }
-                        }
-                    )
+                if(showMsg)
+                {
+                    Text(xmlData.elements ?? "")
+                }
                 }
         }
     }
