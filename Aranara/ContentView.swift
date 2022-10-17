@@ -10,18 +10,29 @@ import UIKit
 struct ContentView: View {
     // declare some variables
     @StateObject var xmlData = Data()
-    @State private var location: CGPoint = CGPoint(x: 205, y:275)
+    @State private var location: CGPoint = CGPoint(x: 205, y:250)
     @State var fingerLocation: CGPoint?
     @State var moveY = false
+    @State var signY = false
     @State var msgOpacity = false
     @State var moveLeft = false
     @State var showMsg = false
+    @State var showWeather = true
+    @State var signsAnimation = false
+    @State var weatherBg = Color(red: 0.8, green: 0.6, blue: 0.4)
     @State var Msg = "Hello!"
     @State var area: String?
     var body: some View {
         ZStack{
             Background
+                .position(x: 400, y: signY ? 220 : 170)
                 .blur(radius: 3)
+                .overlay(
+                    navSign
+                        .offset(x: 180, y: 100)
+                        .rotationEffect(Angle(degrees: 7))
+                
+                )
             Ararycan
                 .position(location)
                 //drag feature to move aranara
@@ -32,17 +43,47 @@ struct ContentView: View {
                     .position(location)
                     
                 )
-                .overlay(weatherData)
+                .overlay(
+                    weatherData
+                        .position(x: 450, y: signY ? 210 : -110) //its current position in the view and what the Y value will change to once signY is true
+                )
+            
                 
         }
     }
     
+    var navSign : some View{
+        ZStack{
+            Image("sign")
+                .resizable()
+                .position(x: 90,y: signY ? 400 : 150)
+                .frame(width: 180, height: 300)
+                .overlay(
+                    Button{
+                        xmlData.getData() // grab weahter data
+                        withAnimation(.easeInOut(duration: 1.5))
+                        {
+                            // initiate animation
+                            signY.toggle()
+                        }
+                    }
+                    label:{
+                        Text("Weather")
+                            .foregroundColor(weatherBg)
+                            .font(.title)
+                    }
+                        //.offset(y: -120)
+                        .position(x: 90, y: signY ? 280 : 30 )
+                )
+        }
+    }
+    
+
     
     var Message : some View{
         VStack{
             Button{
                 showMsg.toggle()
-                xmlData.getData()
             }
         label:{
             Text("")
@@ -120,10 +161,44 @@ struct ContentView: View {
     var weatherData: some View{
         ZStack{
             VStack{
-                if(showMsg)
-                {
-                    Text(xmlData.elements ?? "")
-                }
+                    Image("Data_sign")
+                        .resizable()
+                        .frame(width: 400, height: 400)
+                        .offset(x: 180, y: -100)
+                        .overlay(
+                            Button{
+                                // initiate animation
+                                withAnimation(.easeInOut(duration: 2)){
+                                    signY.toggle()
+                                    }
+                                    
+                            } label: {
+                                Text("Back")
+                                    .foregroundColor(.white)
+                                    .font(.title)
+                            }
+                                .offset(x: 185, y: 65)
+                        
+                        )
+                        .overlay(
+                            Text(xmlData.location ?? "")
+                                .foregroundColor(.white)
+                                .font(.title3)
+                                .offset(x: 180, y: -165)
+                                .padding(EdgeInsets(top: 30, leading: 35, bottom: 30, trailing: 25))
+                        )
+                        .overlay(
+                            Text(xmlData.weather ?? "")
+                                .foregroundColor(.white)
+                                .font(.title)
+                                .offset(x: 180, y: -90)
+                        )
+                        .overlay(
+                            Text(xmlData.temperature ?? "")
+                                .foregroundColor(.white)
+                                .font(.title)
+                                .offset(x: 180, y: -10)
+                        )
                 }
         }
     }
