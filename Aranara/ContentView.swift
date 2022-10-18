@@ -22,6 +22,8 @@ struct ContentView: View {
     @State var weatherBg = Color(red: 0.8, green: 0.6, blue: 0.4)
     @State var Msg = "Hello!"
     @State var area: String?
+    @State var currentLocation: String?
+    
     var body: some View {
         ZStack{
             Background
@@ -33,6 +35,10 @@ struct ContentView: View {
                         .rotationEffect(Angle(degrees: 7))
                 
                 )
+                .onAppear(){
+                    // throw the current state and city into a string
+                    currentLocation = "\(xmlData.location ?? ""), \(xmlData.state ?? "")"
+                }
             Ararycan
                 .position(location)
                 //drag feature to move aranara
@@ -41,45 +47,49 @@ struct ContentView: View {
                 )*/
                 .overlay(Message
                     .position(location)
-                    
                 )
                 .overlay(
                     weatherData
-                        .position(x: 450, y: signY ? 210 : -110) //its current position in the view and what the Y value will change to once signY is true
+                        .position(x: 380, y: signY ? 240 : -110) //its current position in the view and what the Y value will change to once signY is true
                 )
+        }.onAppear(){
+            xmlData.getLocation()
+            // load weather data
+            xmlData.loadAPIData()
+            xmlData.getWeatherStatus()
             
-                
         }
     }
     
-    var navSign : some View{
+    var navSign : some View{ // create the menu sign
         ZStack{
             Image("sign")
                 .resizable()
                 .position(x: 90,y: signY ? 400 : 150)
                 .frame(width: 180, height: 300)
-                .overlay(
+                .overlay( // add a button to the sign
                     Button{
-                        xmlData.getData() // grab weahter data
                         withAnimation(.easeInOut(duration: 1.5))
                         {
                             // initiate animation
                             signY.toggle()
                         }
                     }
-                    label:{
+                    label:{ // the label for that button
                         Text("Weather")
                             .foregroundColor(weatherBg)
-                            .font(.title)
+                            .font(.custom("HYWenHei-HEW",size: 20))
+                            
+                            
                     }
-                        //.offset(y: -120)
+                        // position of this button
                         .position(x: 90, y: signY ? 280 : 30 )
                 )
         }
     }
     
 
-    
+    // little test button that says hello when aranara is tapped
     var Message : some View{
         VStack{
             Button{
@@ -90,7 +100,7 @@ struct ContentView: View {
                 .frame(width: 20, height: 80)
             
         }
-            if showMsg {
+            if showMsg { // basically shows the text if bool is true
                 Text(Msg)
                     .opacity(1.0)
                     .onAppear(){
@@ -108,32 +118,34 @@ struct ContentView: View {
     
     
     // this is the image with some animations
+    // I'm utilizing the ternary operator to move between fixed values dependant on the state of the bool
     var Ararycan : some View{
-        Image("aranara_rightArm")
+        Image("aranara_rightArm") // first image
             .resizable()
             .frame(width: 225, height: 225)
             .offset(x: 3 ,y: moveY ? -20 : 0)
+        // this would rotate his arm -4 degrees and back to 0
             .rotationEffect(Angle(degrees: moveLeft ? -4 : 0))
-            .overlay(Image("aranara_body")
+            .overlay(Image("aranara_body") // second
                 .resizable()
                 .padding()
                 .frame(width: 250, height: 250)
                 .overlay(
-                    Image("aranara_hat")
+                    Image("aranara_hat") // third
                         .resizable()
                         .frame(width: 250, height: 200)
                         .offset(x: -2, y: -105)
                         .rotationEffect(Angle(degrees: moveLeft ? 4 : 0))
                 )
                 .overlay(
-                    Image("aranara_leftArm")
+                    Image("aranara_leftArm") // fourth..
                         .resizable()
                         .frame(width: 225, height: 225)
                         .offset(x: -7.5, y: 1)
                         .rotationEffect(Angle(degrees: moveLeft ? 2 : 0))
                 )
                 .offset(y: moveY ? -20 : 0)
-                .onAppear(){
+                .onAppear(){ // moves aranara up and down
                     withAnimation(.easeInOut(duration: 2).repeatForever()){
                         moveY.toggle()
                         moveLeft.toggle()
@@ -141,6 +153,8 @@ struct ContentView: View {
                 }
         )
     }
+    
+    // creating a gesture to move the little guy around
     
     var drag: some Gesture{ //initial drag
         DragGesture()
@@ -158,16 +172,19 @@ struct ContentView: View {
             }
     }
     
+    
+    // this block governs the weather data and creates a new sign that displays that in formatted view
     var weatherData: some View{
         ZStack{
             VStack{
-                    Image("Data_sign")
+                    Image("data_sign2")
                         .resizable()
                         .frame(width: 400, height: 400)
                         .offset(x: 180, y: -100)
                         .overlay(
                             Button{
                                 // initiate animation
+                                
                                 withAnimation(.easeInOut(duration: 2)){
                                     signY.toggle()
                                     }
@@ -175,29 +192,30 @@ struct ContentView: View {
                             } label: {
                                 Text("Back")
                                     .foregroundColor(.white)
-                                    .font(.title)
+                                    .font(.custom("HYWenHei-HEW",size: 20, relativeTo: .title))
                             }
                                 .offset(x: 185, y: 65)
                         
                         )
+                // bunch of overlays..
                         .overlay(
-                            Text(xmlData.location ?? "")
+                            Text("\(xmlData.location ?? ""), \(xmlData.state ?? "")")
                                 .foregroundColor(.white)
-                                .font(.title3)
-                                .offset(x: 180, y: -165)
+                                .font(.custom("HYWenHei-HEW",size: 20, relativeTo: .title))
+                                .offset(x: 180, y: -195)
                                 .padding(EdgeInsets(top: 30, leading: 35, bottom: 30, trailing: 25))
                         )
                         .overlay(
-                            Text(xmlData.weather ?? "")
+                            Text("fetch weahter status")
                                 .foregroundColor(.white)
-                                .font(.title)
-                                .offset(x: 180, y: -90)
+                                .font(Font.custom("HYWenHei-HEW",size: 20, relativeTo: .title))
+                                .offset(x: 180, y: -125)
                         )
                         .overlay(
-                            Text(xmlData.temperature ?? "")
-                                .foregroundColor(.white)
-                                .font(.title)
-                                .offset(x: 180, y: -10)
+                            Image(xmlData.weatherImg ?? "")
+                                .resizable()
+                                .frame(width: 58,height: 58)
+                                .offset(x: 180, y: -20)
                         )
                 }
         }
@@ -209,9 +227,7 @@ var Background : some View{
     Image("sumeruBackground")
         .resizable()
         .frame(width: 1800/2, height: 900/2)
-        
 }
-
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
