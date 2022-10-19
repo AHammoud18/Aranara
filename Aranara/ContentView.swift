@@ -56,7 +56,7 @@ struct ContentView: View {
             xmlData.getLocation()
             // load weather data
             xmlData.loadAPIData()
-            xmlData.getWeatherStatus()
+            xmlData.getWeatherStatus() // get current forecast
             
         }
     }
@@ -199,23 +199,23 @@ struct ContentView: View {
                         )
                 // bunch of overlays..
                         .overlay(
-                            Text("\(xmlData.location ?? ""), \(xmlData.state ?? "")")
+                            Text("\(xmlData.location ?? "no data"), \(xmlData.state ?? "no data")")
                                 .foregroundColor(.white)
                                 .font(.custom("HYWenHei-HEW",size: 20, relativeTo: .title))
-                                .offset(x: 180, y: -195)
+                                .offset(x: 180, y: -200)
                                 .padding(EdgeInsets(top: 30, leading: 35, bottom: 30, trailing: 25))
                         )
                         .overlay(
-                            Text("fetch weahter status")
+                            Text(xmlData.weather ?? "no data")
                                 .foregroundColor(.white)
                                 .font(Font.custom("HYWenHei-HEW",size: 20, relativeTo: .title))
                                 .offset(x: 180, y: -125)
                         )
                         .overlay(
-                            Image(xmlData.weatherImg ?? "")
+                            Image(xmlData.weatherImg ?? "no data")
                                 .resizable()
                                 .frame(width: 58,height: 58)
-                                .offset(x: 180, y: -20)
+                                .offset(x: 180, y: -25)
                         )
                 }
         }
