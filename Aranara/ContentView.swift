@@ -9,7 +9,8 @@ import SwiftUI
 import UIKit
 struct ContentView: View {
     // declare some variables
-    @StateObject var xmlData = Data()
+    @StateObject var locationData = locData()
+    @StateObject var weather = Weather()
     @State private var location: CGPoint = CGPoint(x: 205, y:250)
     @State var fingerLocation: CGPoint?
     @State var moveY = false
@@ -23,6 +24,9 @@ struct ContentView: View {
     @State var Msg = "Hello!"
     @State var area: String?
     @State var currentLocation: String?
+    @State var backgroundImg: String? = "sumeruBackground"
+    @State var backgroundWeather = false
+    
     
     var body: some View {
         ZStack{
@@ -30,15 +34,18 @@ struct ContentView: View {
                 .position(x: 400, y: signY ? 220 : 170)
                 .blur(radius: 3)
                 .overlay(
+                    Background2
+                        .position(x: 400, y: signY ? 220 : 170)
+                        .blur(radius: 3)
+                        .opacity(backgroundWeather ? 1.0 : 0.0)
+                        //.opacity(backgroundWeather ? 1.0 : 0.0)
+                )
+                .overlay(
                     navSign
                         .offset(x: 180, y: 100)
                         .rotationEffect(Angle(degrees: 7))
                 
                 )
-                .onAppear(){
-                    // throw the current state and city into a string
-                    currentLocation = "\(xmlData.location ?? ""), \(xmlData.state ?? "")"
-                }
             Ararycan
                 .position(location)
                 //drag feature to move aranara
@@ -53,16 +60,17 @@ struct ContentView: View {
                         .position(x: 380, y: signY ? 240 : -110) //its current position in the view and what the Y value will change to once signY is true
                 )
         }.onAppear(){
-            xmlData.getLocation()
+            locationData.getLocation()
             // load weather data
-            xmlData.loadAPIData()
-            xmlData.getWeatherStatus() // get current forecast
+            weather.loadAPIData()
+            weather.getWeatherStatus() // get current forecast
             
         }
     }
     
     var navSign : some View{ // create the menu sign
         ZStack{
+            
             Image("sign")
                 .resizable()
                 .position(x: 90,y: signY ? 400 : 150)
@@ -73,6 +81,7 @@ struct ContentView: View {
                         {
                             // initiate animation
                             signY.toggle()
+                            backgroundWeather.toggle()
                         }
                     }
                     label:{ // the label for that button
@@ -184,11 +193,10 @@ struct ContentView: View {
                         .overlay(
                             Button{
                                 // initiate animation
-                                
                                 withAnimation(.easeInOut(duration: 2)){
+                                    backgroundWeather.toggle()
                                     signY.toggle()
                                     }
-                                    
                             } label: {
                                 Text("Back")
                                     .foregroundColor(.white)
@@ -199,40 +207,46 @@ struct ContentView: View {
                         )
                 // bunch of overlays..
                         .overlay(
-                            Text("\(xmlData.location ?? "no data"), \(xmlData.state ?? "no data")")
+                            Text("\(weather.city ?? "no data"), \(weather.state ?? "no data")")
                                 .foregroundColor(.white)
                                 .font(.custom("HYWenHei-HEW",size: 20, relativeTo: .title))
                                 .offset(x: 180, y: -200)
                                 .padding(EdgeInsets(top: 30, leading: 35, bottom: 30, trailing: 25))
                         )
                         .overlay(
-                            Text(xmlData.weather ?? "no data")
+                            Text(weather.weather ?? "no data")
                                 .foregroundColor(.white)
                                 .font(Font.custom("HYWenHei-HEW",size: 20, relativeTo: .title))
                                 .offset(x: 180, y: -125)
                         )
                         .overlay(
-                            Image(xmlData.weatherImg ?? "no data")
+                            Image(weather.weatherImg ?? "no data")
                                 .resizable()
-                                .frame(width: 58,height: 58)
-                                .offset(x: 180, y: -25)
+                                .frame(width: 60,height: 58)
+                                .offset(x: 185, y: -25)
                         )
                 }
         }
     }
-}
+    
+    var Background : some View{
+        Image("sumeruBackground")
+            .resizable()
+            .frame(width: 1800/2, height: 900/2)
+    }
 
-
-var Background : some View{
-    Image("sumeruBackground")
-        .resizable()
-        .frame(width: 1800/2, height: 900/2)
+    var Background2 : some View{
+        Image(weather.determineBackground(background: backgroundImg))
+            .resizable()
+            .frame(width: 1800/2, height: 900/2)
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .ignoresSafeArea(.all)
-            .previewInterfaceOrientation(   .landscapeLeft)
+            .previewInterfaceOrientation(
+                .landscapeLeft)
     }
 }
